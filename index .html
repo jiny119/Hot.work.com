@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTaskVita - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+</head>
+<body>
+    <header>
+        <button id="menu-btn">☰</button>
+        <h1>MyTaskVita</h1>
+    </header>
+
+    <nav id="sidebar">
+        <ul>
+            <li><a href="withdrawal.html">💰 Withdrawal</a></li>
+            <li><a href="referral.html">🔗 Referral</a></li>
+            <li><a href="settings.html">⚙️ Settings</a></li>
+            <li><a href="#" onclick="logoutUser()">🚪 Logout</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h2>Complete Tasks & Earn Coins</h2>
+        <div class="tasks">
+            <button onclick="startGame()">🎮 Play Game (5 Coins)</button>
+            <button onclick="watchAd()">📺 Watch Ad (5 Coins)</button>
+            <button onclick="startSurvey()">📋 Take Survey (20 Coins)</button>
+            <button onclick="installApp()">📱 Install App (5 Coins)</button>
+        </div>
+    </main>
+
+    <script>
+        function startGame() {
+            window.location.href = "https://www.crazygames.com/game/tunnel-rush"; // Replace with game URL
+        }
+
+        function watchAd() {
+            alert("Ad is playing... (This will be replaced with actual AdSense ads)");
+        }
+
+        function startSurvey() {
+            window.open("https://www.youtube.com/@ToonCraftStudio-f7o", "_blank");
+        }
+
+        function installApp() {
+            alert("App install feature coming soon!");
+        }
+
+        document.getElementById("menu-btn").addEventListener("click", function () {
+            document.getElementById("sidebar").classList.toggle("active");
+        });
+
+        function logoutUser() {
+            alert("Logged out!");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>
