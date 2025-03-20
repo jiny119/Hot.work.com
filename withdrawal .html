@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal - MyTaskVita</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="firebase-config.js"></script>
+</head>
+<body>
+    <h2>Withdraw Your Coins</h2>
+
+    <p><b>Your Coins:</b> <span id="userCoins">Loading...</span></p>
+    <p><b>Your Referrals:</b> <span id="userReferrals">Loading...</span></p>
+    <p><b>Your Clicks:</b> <span id="userClicks">Loading...</span></p>
+
+    <label for="method">Select Withdrawal Method:</label>
+    <select id="method">
+        <option value="jazzcash">JazzCash</option>
+        <option value="easypaisa">EasyPaisa</option>
+        <option value="payoneer">Payoneer</option>
+        <option value="paypal">PayPal</option>
+    </select>
+    
+    <input type="text" id="account" placeholder="Enter Account Number">
+    <button id="withdraw-btn">Withdraw</button>
+
+    <p id="withdrawStatus"></p>
+
+    <script type="module">
+        import { auth, database } from "./firebase-config.js";
+        import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const userRef = ref(database, "users/" + user.uid);
+
+                get(userRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        let data = snapshot.val();
+                        document.getElementById("userCoins").innerText = data.coins || 0;
+                        document.getElementById("userReferrals").innerText = data.referrals || 0;
+                        document.getElementById("userClicks").innerText = data.clicks || 0;
+                    }
+                });
+            } else {
+                alert("Please log in first!");
+                window.location.href = "login.html";
+            }
+        });
+
+        document.getElementById("withdraw-btn").addEventListener("click", function() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("You must be logged in to withdraw!");
+                return;
+            }
+
+            const coins = parseInt(document.getElementById("userCoins").innerText);
+            const referrals = parseInt(document.getElementById("userReferrals").innerText);
+            const clicks = parseInt(document.getElementById("userClicks").innerText);
+            const method = document.getElementById("method").value;
+            const account = document.getElementById("account").value;
+
+            if (coins < 15000) {
+                alert("You need at least 15000 coins to withdraw!");
+                return;
+            }
+
+            if (referrals < 10 || clicks < 5) {
+                alert("You need at least 10 referrals and 5 clicks before withdrawing!");
+                return;
+            }
+
+            const withdrawRef = ref(database, "withdrawals/" + user.uid);
+            set(withdrawRef, {
+                method: method,
+                account: account,
+                amount: coins,
+                status: "Pending",
+                requestTime: Date.now(),
+            });
+
+            update(ref(database, "users/" + user.uid), {
+                coins: 0,
+            });
+
+            document.getElementById("withdrawStatus").innerText = "Withdrawal Requested! You will receive payment in 48 hours.";
+        });
+    </script>
+</body>
+</html>
