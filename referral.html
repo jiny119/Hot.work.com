@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral System - MyTaskVita</title>
+    <link rel="stylesheet" href="referral-style.css">
+    <script type="module" src="firebase-config.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Earn Coins with Referrals</h1>
+    </header>
+
+    <main>
+        <p><b>Your Referral Link:</b></p>
+        <input type="text" id="referralLink" readonly>
+        <button onclick="copyReferral()">📋 Copy Link</button>
+        <button onclick="shareReferral()">📤 Share</button>
+
+        <p><b>Total Referrals:</b> <span id="totalReferrals">Loading...</span></p>
+        <p><b>Coins Earned from Referrals:</b> <span id="referralCoins">Loading...</span></p>
+    </main>
+
+    <script type="module">
+        import { auth, database } from "./firebase-config.js";
+        import { ref, get, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const userRef = ref(database, "users/" + user.uid);
+                get(userRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        let data = snapshot.val();
+                        const referralCode = user.uid.substring(0, 6);
+                        document.getElementById("referralLink").value = `https://only-test-9c5q.vercel.app/signup?ref=${referralCode}`;
+                        document.getElementById("totalReferrals").innerText = data.referrals || 0;
+                        document.getElementById("referralCoins").innerText = (data.referrals || 0) * 20;
+                    }
+                });
+            } else {
+                alert("Please log in first!");
+                window.location.href = "login.html";
+            }
+        });
+
+        function copyReferral() {
+            let referralInput = document.getElementById("referralLink");
+            referralInput.select();
+            document.execCommand("copy");
+            alert("Referral Link Copied!");
+        }
+
+        function shareReferral() {
+            let referralLink = document.getElementById("referralLink").value;
+            if (navigator.share) {
+                navigator.share({
+                    title: "Join MyTaskVita & Earn!",
+                    text: "Sign up now and earn free coins!",
+                    url: referralLink
+                }).then(() => console.log("Referral Shared!"));
+            } else {
+                alert("Sharing not supported, copy the link manually.");
+            }
+        }
+    </script>
+</body>
+</html>
